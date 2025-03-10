@@ -58,10 +58,12 @@ else:
 
 '''
 # -+-+-+ MayDay +-+-+-
+#      .__(.)< (MEOW)
+#       \___)
+# ~~~~~~~~~~~~~~~~~~-->
 # If error in above code, mark it as comment and use the below code to scrap from data saved offline
 # Amazon's data is/maybe dynamic
-# Incase of error with Amazon.in web result's backend code modified, I've provided some data of products
-# saved during testing of this code, that perfectly works.
+# Incase of error with Amazon.in web result's backend code modified, I've provided some data of products saved during testing of this code, that perfectly works.
 # Available offline data for "chocolate" "dryfruit" "iphone" "laptop" "namkeen" "pant" "realme phones" "shirt" "shoe"
 with open(f"<your path>/Data/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
         soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
