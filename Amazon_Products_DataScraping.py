@@ -58,7 +58,7 @@ else:
 
 '''
 # -+-+-+ MayDay +-+-+-
-#      .__(.)< (MEOW)
+#      .__(*)< (MEOW)
 #       \___)
 # ~~~~~~~~~~~~~~~~~~-->
 # If error in above code, mark it as comment and use the below code to scrap from data saved offline
