@@ -32,26 +32,19 @@ while True:
 time.sleep(1)
 
 
-'''
-headers = {'User-Agent': UserAgent().random}   # Random User-Agent
-url=f"https://www.amazon.in/s?k={product}&page=1"
-
-response = re.get(url, headers=headers)   # Send http Get request
-print("Status Code:",response.status_code,flush=True)
-time.sleep(1)'''
 
 headers = {'User-Agent': UserAgent().random}   # Random User-Agent
-response = ""
+response = ""   # To store fetched pages
 code=0
 
-for i in range(1,6):
+for i in range(1,6):   # Set range of no. of pages tou want to read
     print(f"Reading page {i}")
     time.sleep(1)
     url=f"https://www.amazon.in/s?k={product}&page={i}"
     resp = re.get(url, headers=headers)   # Send http Get request
     code=resp.status_code
     if resp.status_code == 200:
-        response += resp.text  #Append the page HTML content
+        response += resp.text  # Append the page HTML content
     else:
         print(f"Failed to fetch page {i}")
 print("All pages read!")
@@ -80,13 +73,13 @@ else:
 # ~~~~~~~~~~~~~~~~~~-->
 # If error in above code, mark it as comment and use the below code to scrap from data saved offline
 # Amazon's data is/maybe dynamic
-# Incase of error with Amazon.in web result's backend code modified, I've provided some data of products
-# saved during testing of this code, that perfectly works.
-# Available offline data for "chocolate" "dryfruit" "iphone" "laptop" "namkeen" "pant" "realme phones" "shirt" "shoe"
+# Incase of error with Amazon.in web result's backend code modified, I've provided some data of products saved during testing of this code, that perfectly works.
+# Check available offline data in Data folder and use proper category to avoid error.
 with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
         soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
         time.sleep(3)
-        print("Data parsed successful!\n", flush=True)'''
+        print("Data parsed successful!\n", flush=True)
+'''
 
 
 
