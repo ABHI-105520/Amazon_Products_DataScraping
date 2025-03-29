@@ -13,18 +13,27 @@ while True:
         "\n1. Electronics "
         "\n2. Fashion "
         "\n3. Food"
+        "\n4. Beauty"
         "\nYour Choice: ",end="")
     ask=input().strip()
-    if ask in ["1","2","3"]:
+    if ask in ["1","2","3","4"]:
+        cat=""
         category=ask
         if ask=="1":
             product=input("\nEnter Electronics product name: ").lower()
+            cat="Electronics"
             break
         if ask=="2":
             product=input("\nEnter Fashion product name: ").lower()
+            cat="Fashion"
             break
         if ask=="3":
             product=input("\nEnter Food product name: ").lower()
+            cat="Food"
+            break
+        if ask=="4":
+            product=input("\nEnter Beauty product name: ").lower()
+            cat="Beauty"
             break
     else:
         print("---Invalid input---\n\n")
@@ -34,17 +43,17 @@ time.sleep(1)
 
 
 headers = {'User-Agent': UserAgent().random}   # Random User-Agent
-response = ""   # To store fetched pages
+response = ""
 code=0
 
-for i in range(1,6):   # Set range of no. of pages tou want to read
+for i in range(1,6):
     print(f"Reading page {i}")
     time.sleep(1)
     url=f"https://www.amazon.in/s?k={product}&page={i}"
     resp = re.get(url, headers=headers)   # Send http Get request
     code=resp.status_code
     if resp.status_code == 200:
-        response += resp.text  # Append the page HTML content
+        response += resp.text  #Append the page HTML content
     else:
         print(f"Failed to fetch page {i}")
 print("All pages read!")
@@ -53,201 +62,273 @@ print("All pages read!")
 
 if code==200:
     # Create a .html file in the name of the product and write the response for future use.
-    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{product}.html","w",encoding="utf-8") as f:   # Use your sys path
+    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","w",encoding="utf-8") as f:   # Use your sys path
         f.write(response)
         print(f"{product} data from Amazon.in extract and write successful!\n")
 
-    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
+    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
         soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
         time.sleep(3)
         print("Data parsed successful!\n", flush=True)
-else:
-    print("Couldn't fetch data from web due to scrap blocker or IP ban.\n")
-
-
-
-'''
-# -+-+-+ MayDay +-+-+-
-#      .__(*)< (MEOW)
-#       \___)
-# ~~~~~~~~~~~~~~~~~~-->
-# If error in above code, mark it as comment and use the below code to scrap from data saved offline
-# Amazon's data is/maybe dynamic
-# Incase of error with Amazon.in web result's backend code modified, I've provided some data of products saved during testing of this code, that perfectly works.
-# Check available offline data in Data folder and use proper category to avoid error.
-with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
-        soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
-        time.sleep(3)
-        print("Data parsed successful!\n", flush=True)
-'''
 
 
 
 
-time.sleep(1)
-print("Scraping Data from search",end="", flush=True)
-for _ in range(5):
+    '''
+    # -+-+-+ MayDay +-+-+-
+    #      .__(*)< (MEOW)
+    #       \___)
+    # ~~~~~~~~~~~~~~~~~~-->
+    # If error in above code, mark it as comment and use the below code to scrap from data saved offline
+    # Amazon's data is/maybe dynamic
+    # Incase of error with Amazon.in web result's backend code modified, I've provided some data of products
+    # saved during testing of this code, that perfectly works.
+    # Available offline data for "chocolate" "dryfruit" "iphone" "laptop" "namkeen" "pant" "realme phones" "shirt" "shoe"
+
+    category="4"
+    cat="Beauty"
+    product="facecream"
+    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
+            soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
+            #time.sleep(3)
+            print("Data parsed successful!\n", flush=True)
+    '''
+
+
+
     time.sleep(1)
-    print(".", end="", flush=True)
-time.sleep(1)
+    print("Scraping Data from search",end="", flush=True)
+    for _ in range(5):
+        time.sleep(0.5)
+        print(".", end="", flush=True)
+    time.sleep(1)
 
 
 
-# Extract data of Electronic Products
-if category=="1":
-    # Dictionary to store data fetched
-    data={"Product Name":[],"Details":[],"Current Price":[], "Original Price":[]}
+    # Extract data of Electronic Products
+    if category=="1":
+        # Dictionary to store data fetched
+        data={"Product Name":[],"Details":[],"Current Price":[], "Original Price":[]}
 
-    details=soup.find_all("div",class_="puisg-col-inner")
-    for detail in details:
-        if detail.find("div",{"data-cy":"title-recipe"}):
-            title=(detail.find("div",{"data-cy":"title-recipe"})).find("h2").span.get_text().split()
-            p=[]   # Store product name
-            d=[]   # Store product details
-            marker=15   # Marks the loc of name-details divider
+        details=soup.find_all("div",class_="puisg-col-inner")
+        for detail in details:
+            if detail.find("div",{"data-cy":"title-recipe"}):
+                title=(detail.find("div",{"data-cy":"title-recipe"})).find("h2").span.get_text().split()
+                p=[]   # Store product name
+                d=[]   # Store product details
+                marker=1000   # Marks the loc of name-details divider
+                for i in range(0,len(title)):
+                    if i<marker:
+                        if "(Refur" in title[i]: # Track the word (Refurbished)
+                            p.append(title[i])
+                        elif "," in title[i][len(title[i])-1] or ":" in title[i][len(title[i])-1]:   # replace char, store name and mark loc
+                            p.append(title[i].replace(":", "").replace(",", ""))
+                            marker=i
+                        elif "(" in title[i][0] or "(" in title[i]:   # Store the word in details and mark loc
+                            d.append(title[i])
+                            marker=i
+                        elif "|" in title[i] or "-" in title[i]:   # Skip this character and mark loc
+                            marker=i
+                        else:
+                            p.append(title[i])
+                    else:
+                        d.append(title[i])
+
+                data["Product Name"].append(" ".join(p))   # Append the product name to dictionary
+                data["Details"].append(" ".join(d if d else "-"))   # Append the product details to dictionary
+
+        
+                if detail.find("div",{"data-cy":"price-recipe"}):
+                    # Checks if price section is available for each item fetched
+                    if detail.find("div", class_="a-row a-size-base a-color-base"):
+                        price_details=detail.find("div",{"data-cy":"price-recipe"}).find("div", class_="a-row a-size-base a-color-base")
+                    else:
+                        price_details=detail.find("div",{"data-cy":"price-recipe"}).find("div", class_="a-row a-size-mini a-color-base")
+
+                    if price_details.find("span", class_="a-price-whole"):
+                    
+                        data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+                    
+                        # Checks if original price is found for each item fetched
+                        org_p=price_details.find("span", {"data-a-strike": True})
+                        if org_p:
+                            data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
+                        else:
+                            # If not found, Current price is the Original price
+                            data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+                        
+                    else:
+                        # If no price found
+                        data["Current Price"].append(0)
+                        data["Original Price"].append(0)
+                else:
+                    data["Current Price"].append(0)
+                    data["Original Price"].append(0)
+
+
+
+    # Extract data of Fashion Products
+    if category=="2":
+        # Dictionary to store data fetched
+        data={"Brand":[],"Product Details":[],"Current Price":[], "Original Price":[]}
+
+        # Extract Brand Name and Product Details
+        details=soup.find_all("div",{"data-cy":"title-recipe"})
+        for detail in details:
+            data["Brand"].append(" ".join(i for i in detail.find("span", class_="a-size-base a-color-base puis-medium-weight-text").get_text().split()))
+            data["Product Details"].append(detail.find("h2", {"aria-label": True})["aria-label"])
+
+        # Extract Current Prices and Original Prices
+        prices=soup.find_all("div",{"data-cy":"price-recipe"})
+        for price in prices:
+            # Checks if price section is available for each item fetched
+            price_details=price.find("div", class_="a-row a-size-mini a-color-base")
+            if price_details.find("span", {"aria-hidden": True}):
+                data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+                
+                # Checks if original price is found for each item fetched
+                org_p=price_details.find("span", {"data-a-strike": True})
+                if org_p:
+                    data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
+                else:
+                    # If not found, Current price is the Original price
+                    data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+            
+            else:
+                # If no price found
+                data["Current Price"].append(0)
+                data["Original Price"].append(0)
+
+
+
+    # Extract data of Food Products
+    if category=="3":
+        # Dictionary to store data fetched
+        data={"Product Name":[],"Details":[],"Current Price":[], "Original Price":[]}
+
+        # Extract Product Name and Product Details
+        details=soup.find_all("div",{"data-cy":"title-recipe"})
+        for detail in details:
+            title=(detail.find("h2")).span.get_text().split()
+            p=[]
+            d=[]
+            marker=7
             for i in range(0,len(title)):
                 if i<marker:
-                    if "(Refur" in title[i]: # Track the word (Refurbished)
-                        p.append(title[i])
-                    elif "," in title[i][len(title[i])-1] or ":" in title[i][len(title[i])-1]:   # replace char, store name and mark loc
+                    if "," in title[i][len(title[i])-1]:
                         p.append(title[i].replace(":", "").replace(",", ""))
                         marker=i
-                    elif "(" in title[i][0] or "(" in title[i]:   # Store the word in details and mark loc
-                        d.append(title[i])
+                    elif ")" in title[i][len(title[i])-1]:
+                        p.append(title[i])
                         marker=i
-                    elif "|" in title[i] or "-" in title[i]:   # Skip this character and mark loc
+                    elif "|" in title[i] or "-" in title[i]:
                         marker=i
                     else:
                         p.append(title[i])
                 else:
                     d.append(title[i])
-
-            data["Product Name"].append(" ".join(i for i in p))   # Append the product name to dictionary
-            data["Details"].append(" ".join(i for i in d))   # Append the product details to dictionary
-
-        
-            if detail.find("div",{"data-cy":"price-recipe"}):
-                # Checks if price section is found for each item fetched
-                price_details=detail.find("div",{"data-cy":"price-recipe"}).find("div", class_="a-row a-size-mini a-color-base")
-                if price_details.find("span", class_="a-price-whole"):
-                    
-                    data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-                    
-                    # Checks if original price is found for each item fetched
-                    org_p=price_details.find("span", {"data-a-strike": True})
-                    if org_p:
-                        data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
-                    else:
-                        # If not found, Current price is the Original price
-                        data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-                        
-                else:
-                    # If no price found
-                    data["Current Price"].append(0)
-                    data["Original Price"].append(0)
+            
+            data["Product Name"].append(" ".join(i for i in p))
+            if d:
+                data["Details"].append(" ".join(i for i in d))
             else:
+                data["Details"].append("na")
+
+        # Extract Current Prices and Original Prices
+        prices=soup.find_all("div",{"data-cy":"price-recipe"})
+        for price in prices:
+            # Checks if price section is available for each item fetched
+            price_details=price.find("div", class_="a-row a-size-mini a-color-base")
+            if price_details.find("span", {"aria-hidden": True}):
+                data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+                
+                # Checks if original price is found for each item fetched
+                org_p=price_details.find("span", {"data-a-strike": True})
+                if org_p:
+                    data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
+                else:
+                    # If not found, Current price is the Original price
+                    data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+            
+            else:
+                # If no price found
                 data["Current Price"].append(0)
                 data["Original Price"].append(0)
 
-# Extract data of Fashion Products
-if category=="2":
-    # Dictionary to store data fetched
-    data={"Brand":[],"Product Details":[],"Current Price":[], "Original Price":[]}
-
-    # Extract Brand Name and Product Details
-    details=soup.find_all("div",{"data-cy":"title-recipe"})
-    for detail in details:
-        data["Brand"].append(" ".join(i for i in detail.find("span", class_="a-size-base a-color-base puis-medium-weight-text").get_text().split()))
-        data["Product Details"].append(detail.find("h2", {"aria-label": True})["aria-label"])
-
-    # Extract Current Prices and Original Prices
-    prices=soup.find_all("div",{"data-cy":"price-recipe"})
-    for price in prices:
-        # Checks if price section is found for each item fetched
-        price_details=price.find("div", class_="a-row a-size-mini a-color-base")
-        if price_details.find("span", {"aria-hidden": True}):
-            data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-            
-            # Checks if original price is found for each item fetched
-            org_p=price_details.find("span", {"data-a-strike": True})
-            if org_p:
-                data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
-            else:
-                # If not found, Current price is the Original price
-                data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-        
-        else:
-            # If no price found
-            data["Current Price"].append(0)
-            data["Original Price"].append(0)
 
 
+    # Extract data of Beauty Products
+    if category=="4":
+        # Dictionary to store data fetched
+        data={"Product Name":[],"Details":[],"Current Price":[], "Original Price":[]}
 
-# Extract data of Food Products
-if category=="3":
-    # Dictionary to store data fetched
-    data={"Product Name":[],"Details":[],"Current Price":[], "Original Price":[]}
-
-    # Extract Product Name and Product Details
-    details=soup.find_all("div",{"data-cy":"title-recipe"})
-    for detail in details:
-        title=(detail.find("h2")).span.get_text().split()
-        p=[]
-        d=[]
-        marker=7
-        for i in range(0,len(title)):
-            if i<marker:
-                if "," in title[i][len(title[i])-1]:
-                    p.append(title[i].replace(":", "").replace(",", ""))
-                    marker=i
-                elif ")" in title[i][len(title[i])-1]:
-                    p.append(title[i])
-                    marker=i
-                elif "|" in title[i] or "-" in title[i]:
-                    marker=i
+        # Extract Product Name and Product Details
+        details=soup.find_all("div",{"data-cy":"title-recipe"})
+        for detail in details:
+            title=detail.find("h2",{"aria-label":True}).span.get_text(separator=" ").split()
+            p=[]
+            d=[]
+            marker=1000
+            for i in range(0,len(title)):
+                if i<marker:
+                    if "," in title[i][len(title[i])-1]:
+                        p.append(title[i].replace(",", ""))
+                        marker=i
+                    elif ")" in title[i][len(title[i])-1]:
+                        p.append(title[i])
+                        marker=i
+                    elif "|" in title[i]:
+                        marker=i
+                    else:
+                        p.append(title[i])
                 else:
-                    p.append(title[i])
-            else:
-                d.append(title[i])
-        
-        data["Product Name"].append(" ".join(i for i in p))
-        data["Details"].append(" ".join(i for i in d))
-
-    # Extract Current Prices and Original Prices
-    prices=soup.find_all("div",{"data-cy":"price-recipe"})
-    for price in prices:
-        # Checks if price section is found for each item fetched
-        price_details=price.find("div", class_="a-row a-size-mini a-color-base")
-        if price_details.find("span", {"aria-hidden": True}):
-            data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+                    d.append(title[i])
             
-            # Checks if original price is found for each item fetched
-            org_p=price_details.find("span", {"data-a-strike": True})
-            if org_p:
-                data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
+            data["Product Name"].append(" ".join(p))
+            data["Details"].append(" ".join(d if d else "-"))
+
+        # Extract Current Prices and Original Prices
+        prices=soup.find_all("div",{"data-cy":"price-recipe"})
+        for price in prices:
+            # Checks if price section is found for each item fetched
+            if price.find("div", class_="a-row a-size-base a-color-base"):
+                price_details=price.find("div", class_="a-row a-size-base a-color-base")
             else:
-                # If not found, Current price is the Original price
-                data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-        
-        else:
-            # If no price found
-            data["Current Price"].append(0)
-            data["Original Price"].append(0)
+                price_details=price.find("div", class_="a-row a-size-mini a-color-base")
+            
+            if price_details.find("span", {"aria-hidden": True}):
+                data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+                
+                # Checks if original price is found for each item fetched
+                org_p=price_details.find("span", {"data-a-strike": True})
+                if org_p:
+                    data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
+                else:
+                    # If not found, Current price is the Original price
+                    data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
+            
+            else:
+                # If no price found
+                data["Current Price"].append(0)
+                data["Original Price"].append(0)
 
 
 
-print("\nData Scrapped!", flush=True)
-time.sleep(2)
-df=pd.DataFrame.from_dict(data)   # Transform data to pandas dataframe
+    print("\nData Scrapped!", flush=True)
+    time.sleep(2)
+    df=pd.DataFrame.from_dict(data)   # Transform data to pandas dataframe
 
-# Calculate the difference in price
-df["Less Amount"]=df["Original Price"] - df["Current Price"]
+    # Calculate the difference in price
+    df["Less Amount"]=df["Original Price"] - df["Current Price"]
 
-# Calculate the discount
-df["Discount %"]=round(((df["Original Price"] - df["Current Price"]) / df["Original Price"]) * 100)
+    # Calculate the discount
+    df["Discount %"]=round(((df["Original Price"] - df["Current Price"]) / df["Original Price"]) * 100)
 
-# Show dataframe
-print(df)
+    # Show dataframe
+    print(df)
 
-# Extract data in desired format
-df.to_excel(f"F:/Visual Studio/Webscraping/Amazon Products/Output/Amazon-{product}.xlsx",index=False)   # Use your sys path
+    # Extract data in desired format
+    df.to_excel(f"F:/Visual Studio/Webscraping/Amazon Products/Output/{cat}/Amazon-{product}.xlsx",index=False)   # Use your sys path
+
+else:
+    print("Couldn't fetch data from web due to scrap blocker or IP ban.\n")
