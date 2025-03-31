@@ -1,3 +1,3 @@
 # Amazon_Products_DataScraping
 
-###### Wait for update.....!
+##### This project is about scraping data from search results of products in amazon shopping site.
