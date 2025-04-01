@@ -17,7 +17,7 @@ while True:
         "\nYour Choice: ",end="")
     ask=input().strip()
     if ask in ["1","2","3","4"]:
-        cat=""
+        
         category=ask
         if ask=="1":
             product=input("\nEnter Electronics product name: ").lower()
@@ -60,6 +60,7 @@ print("All pages read!")
 
 
 
+# Checkpoint 1
 if code==200:
     # Create a .html file in the name of the product and write the response for future use.
     with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","w",encoding="utf-8") as f:   # Use your sys path
@@ -74,25 +75,29 @@ if code==200:
 
 
 
-    '''
+  
     # -+-+-+ MayDay +-+-+-
     #      .__(*)< (MEOW)
     #       \___)
     # ~~~~~~~~~~~~~~~~~~-->
-    # If error in above code, mark it as comment and use the below code to scrap from data saved offline
+    # If error in above code(Checkpoint 1),
+    # Mark it as comment and use the below code(Checkpoint 2) to scrap from data saved offline
+    # Do not change the identation
     # Amazon's data is/maybe dynamic
     # Incase of error with Amazon.in web result's backend code modified, I've provided some data of products
     # saved during testing of this code, that perfectly works.
     # Available offline data for "chocolate" "dryfruit" "iphone" "laptop" "namkeen" "pant" "realme phones" "shirt" "shoe"
 
-    category="4"
-    cat="Beauty"
-    product="facecream"
-    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
-            soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
-            #time.sleep(3)
-            print("Data parsed successful!\n", flush=True)
-    '''
+  
+# Checkpoint 2
+#if True:
+#    category="4"
+#    cat="Beauty"
+#    product="facewash"
+#    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
+#            soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
+#            #time.sleep(3)
+#            print("Data parsed successful!\n", flush=True)
 
 
 
@@ -102,6 +107,49 @@ if code==200:
         time.sleep(0.5)
         print(".", end="", flush=True)
     time.sleep(1)
+
+
+
+    def find_price(data):
+        prices=data
+        
+        def get_price(pd):
+            price=pd
+            
+            # Checks if price section is available for each item fetched
+            if price.find("div", class_="a-row a-size-base a-color-base"):
+                price_details=price.find("div", class_="a-row a-size-base a-color-base")
+            else:
+                price_details=price.find("div", class_="a-row a-size-mini a-color-base")
+            if price_details.find("span", class_="a-price-whole"):
+                c_p=float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",",""))
+                        
+                # Checks if original price is found for each item fetched
+                org_p=price_details.find("span", {"data-a-strike": True})
+                if org_p:
+                    o_p=float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",",""))
+                else:
+                    # If not found, Current price is the Original price
+                    o_p=float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",",""))
+                    
+            else:
+                # If no price found
+                c_p=0
+                o_p=0
+            return c_p,o_p
+
+        if category=="1":
+            return get_price(prices)
+            
+        else:
+            c_p=[]
+            o_p=[]
+            for price in prices:
+                c,o=get_price(price)
+                c_p.append(c)
+                o_p.append(o)
+            return c_p,o_p
+        
 
 
 
@@ -139,28 +187,7 @@ if code==200:
 
         
                 if detail.find("div",{"data-cy":"price-recipe"}):
-                    # Checks if price section is available for each item fetched
-                    if detail.find("div", class_="a-row a-size-base a-color-base"):
-                        price_details=detail.find("div",{"data-cy":"price-recipe"}).find("div", class_="a-row a-size-base a-color-base")
-                    else:
-                        price_details=detail.find("div",{"data-cy":"price-recipe"}).find("div", class_="a-row a-size-mini a-color-base")
-
-                    if price_details.find("span", class_="a-price-whole"):
-                    
-                        data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-                    
-                        # Checks if original price is found for each item fetched
-                        org_p=price_details.find("span", {"data-a-strike": True})
-                        if org_p:
-                            data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
-                        else:
-                            # If not found, Current price is the Original price
-                            data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-                        
-                    else:
-                        # If no price found
-                        data["Current Price"].append(0)
-                        data["Original Price"].append(0)
+                    data["Current Price"],data["Original Price"]=find_price(detail)
                 else:
                     data["Current Price"].append(0)
                     data["Original Price"].append(0)
@@ -180,24 +207,7 @@ if code==200:
 
         # Extract Current Prices and Original Prices
         prices=soup.find_all("div",{"data-cy":"price-recipe"})
-        for price in prices:
-            # Checks if price section is available for each item fetched
-            price_details=price.find("div", class_="a-row a-size-mini a-color-base")
-            if price_details.find("span", {"aria-hidden": True}):
-                data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-                
-                # Checks if original price is found for each item fetched
-                org_p=price_details.find("span", {"data-a-strike": True})
-                if org_p:
-                    data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
-                else:
-                    # If not found, Current price is the Original price
-                    data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-            
-            else:
-                # If no price found
-                data["Current Price"].append(0)
-                data["Original Price"].append(0)
+        data["Current Price"],data["Original Price"]=find_price(prices)
 
 
 
@@ -236,24 +246,7 @@ if code==200:
 
         # Extract Current Prices and Original Prices
         prices=soup.find_all("div",{"data-cy":"price-recipe"})
-        for price in prices:
-            # Checks if price section is available for each item fetched
-            price_details=price.find("div", class_="a-row a-size-mini a-color-base")
-            if price_details.find("span", {"aria-hidden": True}):
-                data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-                
-                # Checks if original price is found for each item fetched
-                org_p=price_details.find("span", {"data-a-strike": True})
-                if org_p:
-                    data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
-                else:
-                    # If not found, Current price is the Original price
-                    data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-            
-            else:
-                # If no price found
-                data["Current Price"].append(0)
-                data["Original Price"].append(0)
+        data["Current Price"],data["Original Price"]=find_price(prices)
 
 
 
@@ -289,28 +282,7 @@ if code==200:
 
         # Extract Current Prices and Original Prices
         prices=soup.find_all("div",{"data-cy":"price-recipe"})
-        for price in prices:
-            # Checks if price section is found for each item fetched
-            if price.find("div", class_="a-row a-size-base a-color-base"):
-                price_details=price.find("div", class_="a-row a-size-base a-color-base")
-            else:
-                price_details=price.find("div", class_="a-row a-size-mini a-color-base")
-            
-            if price_details.find("span", {"aria-hidden": True}):
-                data["Current Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-                
-                # Checks if original price is found for each item fetched
-                org_p=price_details.find("span", {"data-a-strike": True})
-                if org_p:
-                    data["Original Price"].append(float(org_p.find("span", {"aria-hidden": True}).get_text().replace("₹","").replace(",","")))
-                else:
-                    # If not found, Current price is the Original price
-                    data["Original Price"].append(float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",","")))
-            
-            else:
-                # If no price found
-                data["Current Price"].append(0)
-                data["Original Price"].append(0)
+        data["Current Price"],data["Original Price"]=find_price(prices)
 
 
 
@@ -328,7 +300,7 @@ if code==200:
     print(df)
 
     # Extract data in desired format
-    df.to_excel(f"F:/Visual Studio/Webscraping/Amazon Products/Output/{cat}/Amazon-{product}.xlsx",index=False)   # Use your sys path
+    #df.to_excel(f"F:/Visual Studio/Webscraping/Amazon Products/Output/{cat}/Amazon-{product}.xlsx",index=False)   # Use your sys path
 
 else:
     print("Couldn't fetch data from web due to scrap blocker or IP ban.\n")
