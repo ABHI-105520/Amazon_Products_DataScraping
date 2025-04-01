@@ -16,8 +16,7 @@ while True:
         "\n4. Beauty"
         "\nYour Choice: ",end="")
     ask=input().strip()
-    if ask in ["1","2","3","4"]:
-        
+    if ask in ["1","2","3","4"]:        
         category=ask
         if ask=="1":
             product=input("\nEnter Electronics product name: ").lower()
@@ -74,8 +73,6 @@ if code==200:
 
 
 
-
-  
     # -+-+-+ MayDay +-+-+-
     #      .__(*)< (MEOW)
     #       \___)
@@ -114,8 +111,7 @@ if code==200:
         prices=data
         
         def get_price(pd):
-            price=pd
-            
+            price=pd            
             # Checks if price section is available for each item fetched
             if price.find("div", class_="a-row a-size-base a-color-base"):
                 price_details=price.find("div", class_="a-row a-size-base a-color-base")
@@ -123,7 +119,7 @@ if code==200:
                 price_details=price.find("div", class_="a-row a-size-mini a-color-base")
             if price_details.find("span", class_="a-price-whole"):
                 c_p=float(price_details.find("span", class_="a-price-whole").get_text().replace("₹","").replace(",",""))
-                        
+                
                 # Checks if original price is found for each item fetched
                 org_p=price_details.find("span", {"data-a-strike": True})
                 if org_p:
@@ -140,7 +136,6 @@ if code==200:
 
         if category=="1":
             return get_price(prices)
-            
         else:
             c_p=[]
             o_p=[]
@@ -149,7 +144,6 @@ if code==200:
                 c_p.append(c)
                 o_p.append(o)
             return c_p,o_p
-        
 
 
 
@@ -160,6 +154,7 @@ if code==200:
 
         details=soup.find_all("div",class_="puisg-col-inner")
         for detail in details:
+            # Extract Brand Name and Product Details
             if detail.find("div",{"data-cy":"title-recipe"}):
                 title=(detail.find("div",{"data-cy":"title-recipe"})).find("h2").span.get_text().split()
                 p=[]   # Store product name
@@ -185,7 +180,7 @@ if code==200:
                 data["Product Name"].append(" ".join(p))   # Append the product name to dictionary
                 data["Details"].append(" ".join(d if d else "-"))   # Append the product details to dictionary
 
-        
+                # Extract Current Prices and Original Prices
                 if detail.find("div",{"data-cy":"price-recipe"}):
                     data["Current Price"],data["Original Price"]=find_price(detail)
                 else:
@@ -198,13 +193,12 @@ if code==200:
     if category=="2":
         # Dictionary to store data fetched
         data={"Brand":[],"Product Details":[],"Current Price":[], "Original Price":[]}
-
         # Extract Brand Name and Product Details
         details=soup.find_all("div",{"data-cy":"title-recipe"})
         for detail in details:
             data["Brand"].append(" ".join(i for i in detail.find("span", class_="a-size-base a-color-base puis-medium-weight-text").get_text().split()))
             data["Product Details"].append(detail.find("h2", {"aria-label": True})["aria-label"])
-
+        
         # Extract Current Prices and Original Prices
         prices=soup.find_all("div",{"data-cy":"price-recipe"})
         data["Current Price"],data["Original Price"]=find_price(prices)
@@ -215,7 +209,6 @@ if code==200:
     if category=="3":
         # Dictionary to store data fetched
         data={"Product Name":[],"Details":[],"Current Price":[], "Original Price":[]}
-
         # Extract Product Name and Product Details
         details=soup.find_all("div",{"data-cy":"title-recipe"})
         for detail in details:
@@ -254,7 +247,6 @@ if code==200:
     if category=="4":
         # Dictionary to store data fetched
         data={"Product Name":[],"Details":[],"Current Price":[], "Original Price":[]}
-
         # Extract Product Name and Product Details
         details=soup.find_all("div",{"data-cy":"title-recipe"})
         for detail in details:
@@ -300,7 +292,7 @@ if code==200:
     print(df)
 
     # Extract data in desired format
-    #df.to_excel(f"F:/Visual Studio/Webscraping/Amazon Products/Output/{cat}/Amazon-{product}.xlsx",index=False)   # Use your sys path
+    df.to_excel(f"F:/Visual Studio/Webscraping/Amazon Products/Output/{cat}/Amazon-{product}.xlsx",index=False)   # Use your sys path
 
 else:
     print("Couldn't fetch data from web due to scrap blocker or IP ban.\n")
