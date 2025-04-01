@@ -62,11 +62,11 @@ print("All pages read!")
 # Checkpoint 1
 if code==200:
     # Create a .html file in the name of the product and write the response for future use.
-    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","w",encoding="utf-8") as f:   # Use your sys path
+    with open(f"./Data/{cat}/{product}.html","w",encoding="utf-8") as f:   # Use your sys path
         f.write(response)
         print(f"{product} data from Amazon.in extract and write successful!\n")
 
-    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
+    with open(f"./Data/{cat}/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
         soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
         time.sleep(3)
         print("Data parsed successful!\n", flush=True)
@@ -91,7 +91,7 @@ if code==200:
 #    category="4"
 #    cat="Beauty"
 #    product="facewash"
-#    with open(f"F:/Visual Studio/Webscraping/Amazon Products/Data/{cat}/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
+#    with open(f"./Data/{cat}/{product}.html","r",encoding="utf-8") as f:   # Use your sys path
 #            soup=bs(f.read(),'html.parser')   # Read and parse the data in html format. Create a soup object.
 #            #time.sleep(3)
 #            print("Data parsed successful!\n", flush=True)
@@ -292,7 +292,7 @@ if code==200:
     print(df)
 
     # Extract data in desired format
-    df.to_excel(f"F:/Visual Studio/Webscraping/Amazon Products/Output/{cat}/Amazon-{product}.xlsx",index=False)   # Use your sys path
+    df.to_excel(f"./Output/{cat}/Amazon-{product}.xlsx",index=False)   # Use your sys path
 
 else:
     print("Couldn't fetch data from web due to scrap blocker or IP ban.\n")
